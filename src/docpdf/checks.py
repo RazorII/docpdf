@@ -231,6 +231,47 @@ def font_was_requested(embedded: str, requested_keys: Iterable[str]) -> bool:
     return False
 
 
+# Free fonts drawn with exactly the same letter widths as a proprietary one
+# (Wikipedia, "Liberation fonts" and "Croscore fonts"). When one stands in for
+# a missing original, every line and page breaks where Word breaks it; only the
+# letter shapes differ. LibreOffice ships Liberation, Carlito and Caladea and
+# picks them on its own when the original is missing.
+METRIC_COMPATIBLE = {
+    "liberationsans": ("Liberation Sans", ("Arial", "Helvetica")),
+    "liberationsansnarrow": ("Liberation Sans Narrow", ("Arial Narrow",)),
+    "liberationserif": ("Liberation Serif", ("Times New Roman", "Times")),
+    "liberationmono": ("Liberation Mono", ("Courier New",)),
+    "arimo": ("Arimo", ("Arial", "Helvetica")),
+    "tinos": ("Tinos", ("Times New Roman", "Times")),
+    "cousine": ("Cousine", ("Courier New", "Courier")),
+    "carlito": ("Carlito", ("Calibri",)),
+    "caladea": ("Caladea", ("Cambria",)),
+}
+
+
+def _family_key(embedded: str) -> str:
+    return _key(re.split(r"[-,]", embedded, maxsplit=1)[0])
+
+
+def stand_ins(substitutes: Iterable[str], requested: Iterable[str], pdf_fonts: Iterable[str]) -> list:
+    """Split substitutes into metric-compatible stand-ins and real swaps.
+
+    Returns (stand_ins, swaps): stand_ins is a list of (requested original,
+    font used) pairs; swaps lists the substitutes that change the layout.
+    """
+    pdf_fonts = list(pdf_fonts)
+    missing = {_key(r): r for r in requested if not any(font_was_requested(f, {_key(r)}) for f in pdf_fonts)}
+    pairs, swaps = [], []
+    for font in substitutes:
+        name, originals = METRIC_COMPATIBLE.get(_family_key(font), (None, ()))
+        matched = [missing[_key(o)] for o in originals if _key(o) in missing]
+        if matched:
+            pairs.append((matched[0], name))
+        else:
+            swaps.append(font)
+    return sorted(set(pairs)), swaps
+
+
 def unexpected_fonts(pdf_fonts: Iterable[str], requested: Iterable[str]) -> list:
     """Fonts in the PDF that the document never asked for: the substitutes."""
     keys = {_key(name) for name in requested}

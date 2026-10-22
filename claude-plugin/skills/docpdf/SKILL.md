@@ -7,7 +7,7 @@ description: Convert Word documents (.docx, .doc, .rtf, .odt) to PDF from the co
 
 docpdf converts a document, then checks the result: the page count Word recorded against the PDF's, and the fonts the document asks for against the fonts embedded in the PDF. A conversion can "succeed" and still be wrong, so the checks and a look at the pages are part of the job, not extras.
 
-This skill needs **docpdf 0.1.1 or newer**.
+This skill needs **docpdf 0.1.2 or newer**.
 
 ## 1. Find docpdf, or install it
 
@@ -16,7 +16,7 @@ uv and pipx put the command in `~/.local/bin`, which often isn't on the shell's 
 1. `docpdf --version`
 2. If that's not found: `~/.local/bin/docpdf --version` (on Windows, `%USERPROFILE%\.local\bin\docpdf.exe --version`), or `"$(uv tool dir --bin)/docpdf" --version` when uv is installed.
 
-Whichever works, use that exact command for everything below. If it reports a version older than 0.1.1, upgrade it with `uv tool upgrade docpdf` (or `pipx upgrade docpdf`).
+Whichever works, use that exact command for everything below. If it reports a version older than 0.1.2, upgrade it with `uv tool upgrade docpdf` (or `pipx upgrade docpdf`).
 
 Only if none of them works, install it. Prefer uv, then pipx, then pip:
 
@@ -51,6 +51,7 @@ For each entry in `results`:
 - `ok` false: report `error` in plain words. Don't retry with other tools without saying so.
 - `warnings`: every warning goes to the user, in plain words. Never call a PDF faithful while it has warnings.
 - `unexpected_fonts` not empty: the converter swapped fonts. `fonts_not_in_pdf` lists the fonts the document asked for that didn't make it in, most used first, so the first one or two are usually the ones missing from this computer. Offer to install them (or ask the user where they come from), then convert again.
+- `stand_ins` / `notes`: a font the document asks for is missing, and a free font with exactly the same letter widths stood in (Carlito for Calibri, Caladea for Cambria, Liberation for Arial, Times New Roman and Courier New). Lines and pages break as in Word; only the letter shapes differ slightly. Mention it in one line. It isn't a failure, unless the user needs the exact typeface (a brand font, say), in which case the original font has to be installed.
 - `pages` vs `expected_pages`: a difference means the layout reflowed, usually because of the font swap.
 - `fonts_checked` false (binary `.doc`): the font check couldn't run, so say so.
 

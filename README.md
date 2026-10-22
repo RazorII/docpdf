@@ -16,6 +16,10 @@ Most headless converters stop at "a PDF came out". docpdf also checks the two th
 
 Either problem prints a warning. With `--strict` it fails instead, so a script can stop before a bad PDF goes to print.
 
+Not every substitute is a problem. Some free fonts are drawn with exactly the same letter widths as a commercial one: Carlito for Calibri, Caladea for Cambria, Liberation Sans, Serif and Mono for Arial, Times New Roman and Courier New. LibreOffice ships them and uses them when the original is missing. Lines and pages then break exactly as in Word, so docpdf prints a note rather than a warning, and `--strict` still passes.
+
+Fonts embedded in the Word file itself are used, so a document that carries its own fonts converts correctly even where they aren't installed (tested with LibreOffice 26.8 on macOS).
+
 ```
 $ docpdf letter.docx
 WARN  letter.docx -> letter.pdf  (3 pages, 1.5 s)

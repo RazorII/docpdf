@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import List, Optional
 
 from . import __version__
-from .checks import fonts_not_in_pdf, read_pdf, read_source, unexpected_fonts
+from .checks import fonts_not_in_pdf, read_pdf, read_source, stand_ins, unexpected_fonts
 from .engines import Engine, EngineError, all_engines, get_engine
 
 SUPPORTED = (".docx", ".doc", ".rtf", ".odt")
@@ -36,9 +36,11 @@ class Result:
     expected_pages: Optional[int] = None
     counted_by: Optional[str] = None
     unexpected_fonts: List[str] = field(default_factory=list)
+    stand_ins: List[dict] = field(default_factory=list)
     fonts_not_in_pdf: List[str] = field(default_factory=list)
     fonts_checked: bool = False
     warnings: List[str] = field(default_factory=list)
+    notes: List[str] = field(default_factory=list)
     error: Optional[str] = None
     seconds: float = 0.0
 
@@ -159,10 +161,19 @@ def _check(result: Result, src: Path, pdf: Path) -> None:
 
     result.fonts_checked = source.fonts_checked
     if source.fonts_checked:
-        result.unexpected_fonts = unexpected_fonts(info.fonts, source.fonts)
+        substitutes = unexpected_fonts(info.fonts, source.fonts)
+        pairs, result.unexpected_fonts = stand_ins(substitutes, source.fonts, info.fonts)
+        result.stand_ins = [{"requested": original, "used": used} for original, used in pairs]
         result.fonts_not_in_pdf = fonts_not_in_pdf(info.fonts, source.fonts, source.uses)
+        for original, used in pairs:
+            result.notes.append(
+                f"{original} isn't on this computer, so {used} stood in. It has the same letter widths, "
+                "so lines and pages break exactly as in Word; only the letter shapes differ slightly."
+            )
         if result.unexpected_fonts:
-            likely = [f for f in result.fonts_not_in_pdf if source.uses.get(f)][:4] or result.fonts_not_in_pdf[:4]
+            covered = {original for original, _ in pairs}
+            missing = [f for f in result.fonts_not_in_pdf if f not in covered]
+            likely = [f for f in missing if source.uses.get(f)][:4] or missing[:4]
             result.warnings.append(
                 f"Fonts were swapped: the PDF uses {', '.join(result.unexpected_fonts)}, which the document "
                 f"doesn't ask for. Most likely missing from this computer: {', '.join(likely) or 'unknown'}. "
@@ -215,6 +226,8 @@ def _print_human(r: Result) -> None:
     print(f"{status}  {name} -> {r.pdf}  ({pages}, {r.seconds:.1f} s)")
     for warning in r.warnings:
         print(f"      {warning}")
+    for note in r.notes:
+        print(f"      Note: {note}")
     if not r.fonts_checked:
         print("      Fonts not checked: docpdf can't read the font list of this file type.")
 

@@ -19,7 +19,7 @@ jobs:
           python-version: "3.12"
       - name: Install LibreOffice (Linux)
         if: runner.os == 'Linux'
-        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libreoffice-writer fonts-liberation
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libreoffice-writer fonts-liberation fonts-crosextra-carlito fonts-crosextra-caladea
       - name: Install LibreOffice (macOS)
         if: runner.os == 'macOS'
         run: brew install --cask libreoffice

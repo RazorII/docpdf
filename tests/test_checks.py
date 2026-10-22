@@ -84,3 +84,23 @@ def test_substitutes_are_reported():
 def test_missing_fonts_ranked_by_use():
     missing = fonts_not_in_pdf({"LinuxLibertineG"}, {"Calibri", "Tahoma", "Arial"}, {"Tahoma": 900, "Arial": 3})
     assert missing == ["Tahoma", "Arial", "Calibri"]
+
+
+def test_metric_compatible_stand_ins_are_split_from_real_swaps():
+    from docpdf.checks import stand_ins
+
+    pdf = {"Carlito", "Carlito-Bold", "LinuxLibertineG"}
+    requested = {"Calibri", "Tahoma"}
+    pairs, swaps = stand_ins(unexpected_fonts(pdf, requested), requested, pdf)
+    assert pairs == [("Calibri", "Carlito")]
+    assert swaps == ["LinuxLibertineG"]
+
+
+def test_stand_in_only_counts_when_the_original_is_missing():
+    from docpdf.checks import stand_ins
+
+    # Arial made it into the PDF, so Liberation Sans replaced something else.
+    pdf = {"ArialMT", "LiberationSans"}
+    requested = {"Arial", "Tahoma"}
+    pairs, swaps = stand_ins(unexpected_fonts(pdf, requested), requested, pdf)
+    assert pairs == [] and swaps == ["LiberationSans"]

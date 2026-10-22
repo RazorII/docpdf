@@ -1,3 +1,3 @@
 """docpdf: convert Word documents to PDF, then check the PDF matches."""
 
-__version__ = "0.1.1"
+__version__ = "0.1.2"

@@ -76,6 +76,19 @@ def test_system_font_is_used_not_substituted(tmp_path, capsys, libreoffice):
     assert r["unexpected_fonts"] == []
 
 
+def test_calibri_stand_in_is_a_note_not_a_warning(tmp_path, capsys, libreoffice):
+    # Without Calibri, LibreOffice uses Carlito, which has Calibri's letter
+    # widths. That keeps the layout, so it's a note and --strict still passes.
+    # (Windows ships Calibri, so there the original is simply used.)
+    doc = make_docx(tmp_path / "c.docx", ["Calibri text"], font="Calibri", stored_pages=1)
+    code, data = run_json(["--strict", doc], capsys)
+    r = data["results"][0]
+    assert code == cli.EXIT_OK, r
+    assert r["unexpected_fonts"] == []
+    assert r["stand_ins"] in ([], [{"requested": "Calibri", "used": "Carlito"}])
+    assert bool(r["stand_ins"]) == bool(r["notes"])
+
+
 def test_refuses_to_overwrite_then_overwrites(tmp_path, capsys, libreoffice):
     doc = make_docx(tmp_path / "a.docx", ["one"], stored_pages=1)
     existing = tmp_path / "a.pdf"
