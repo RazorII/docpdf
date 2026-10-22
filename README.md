@@ -1,5 +1,7 @@
 # docpdf
 
+[![test](https://github.com/RazorII/docpdf/actions/workflows/test.yml/badge.svg)](https://github.com/RazorII/docpdf/actions/workflows/test.yml)
+
 Convert Word documents to PDF from the command line, then check that the PDF actually matches the document.
 
 ```
@@ -100,7 +102,7 @@ uv venv && uv pip install -e ".[test]"
 pytest
 ```
 
-The tests build their own small Word documents, so the repo carries no binaries. Tests that convert skip themselves when LibreOffice isn't installed. CI runs the suite on macOS, Windows and Linux.
+The tests build their own small Word documents, so the repo carries no binaries. Tests that convert skip themselves when LibreOffice isn't installed. CI runs the suite on macOS, Windows and Linux on every push (first green run: LibreOffice 26.8.1 on macOS, 26.2.6 on Windows, 24.2.7 on Ubuntu).
 
 ## License
 
