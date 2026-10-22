@@ -1,0 +1,42 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "docpdf"
+dynamic = ["version"]
+description = "Convert Word documents to PDF from the command line, then check the PDF matches the document."
+readme = "README.md"
+requires-python = ">=3.9"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "RazorII" }]
+keywords = ["docx", "doc", "pdf", "convert", "libreoffice", "headless"]
+classifiers = [
+  "Environment :: Console",
+  "Operating System :: MacOS",
+  "Operating System :: Microsoft :: Windows",
+  "Operating System :: POSIX :: Linux",
+  "Programming Language :: Python :: 3",
+  "Topic :: Office/Business :: Office Suites",
+]
+dependencies = ["pypdf>=4"]
+
+[project.optional-dependencies]
+test = ["pytest>=7"]
+
+[project.scripts]
+docpdf = "docpdf.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/RazorII/docpdf"
+Issues = "https://github.com/RazorII/docpdf/issues"
+
+[tool.hatch.version]
+path = "src/docpdf/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/docpdf"]
+
+[tool.hatch.build.targets.sdist]
+exclude = ["/.github", "/claude-plugin"]
