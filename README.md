@@ -9,12 +9,16 @@ $ docpdf contract.docx
 OK    contract.docx -> contract.pdf  (2 pages, 1.4 s)
 ```
 
-Most headless converters stop at "a PDF came out". docpdf also checks the two things that go wrong quietly:
+Most headless converters stop at "a PDF came out". docpdf also checks the things that go wrong quietly:
 
 - **Page count.** Word records how many pages a .docx had when it was last saved. If the PDF has a different count, the layout shifted.
 - **Fonts.** If the PDF contains a font the document never asked for, the converter couldn't find the right one and swapped in a lookalike. That changes line breaks, spacing and often the page count.
+- **Text.** Every paragraph of the document, including headers, footers, footnotes and text boxes, has to be findable in the PDF's text. A dropped text box or letterhead shows up here.
+- **Pictures.** The PDF has to hold at least as many pictures as the document places, so a lost logo or signature image doesn't slip through.
 
-Either problem prints a warning. With `--strict` it fails instead, so a script can stop before a bad PDF goes to print.
+Any of these prints a warning. With `--strict` it fails instead, so a script can stop before a bad PDF goes to print.
+
+docpdf also says when the pages are worth a look. Pictures, text boxes, drawn shapes, floating objects, columns and charts are where a converter is most likely to put something in the wrong place, and no automatic check sees a logo that moved. When a document has any of them, or a check failed, the output ends with `Worth a look at the pages:` and the reasons (`visual_check` in `--json`, with `image_pages` listing the pages that hold pictures).
 
 Not every substitute is a problem. Some free fonts are drawn with exactly the same letter widths as a commercial one: Carlito for Calibri, Caladea for Cambria, Liberation Sans, Serif and Mono for Arial, Times New Roman and Courier New. LibreOffice ships them and uses them when the original is missing. Lines and pages then break exactly as in Word, so docpdf prints a note rather than a warning, and `--strict` still passes.
 
@@ -69,7 +73,7 @@ docpdf --engines                   # list the converters installed
 
 An existing PDF is never replaced unless you pass `--overwrite`. The original document is never touched: docpdf converts a copy in a temporary folder.
 
-Formats: `.docx`, `.doc`, `.rtf` and `.odt`. The font check covers `.docx`, `.rtf` and `.odt`. The page-count check needs a `.docx` whose saving app recorded a page count, which Word always does.
+Formats: `.docx`, `.doc`, `.rtf` and `.odt`. The font check covers `.docx`, `.rtf` and `.odt`; the text, picture and layout checks cover `.docx` and `.odt`. The page-count check needs a `.docx` whose saving app recorded a page count, which Word always does.
 
 | Exit code | Meaning |
 |---|---|

@@ -5,9 +5,9 @@ description: Convert Word documents (.docx, .doc, .rtf, .odt) to PDF from the co
 
 # docpdf: Word documents to faithful PDFs
 
-docpdf converts a document, then checks the result: the page count Word recorded against the PDF's, and the fonts the document asks for against the fonts embedded in the PDF. A conversion can "succeed" and still be wrong, so the checks and a look at the pages are part of the job, not extras.
+docpdf converts a document, then checks the result: the page count Word recorded against the PDF's, the fonts the document asks for against the fonts in the PDF, that every paragraph of text made it in, and that no picture went missing. A conversion can "succeed" and still be wrong, so the checks, and a look at the pages when it's worth it, are part of the job.
 
-This skill needs **docpdf 0.1.2 or newer**.
+This skill needs **docpdf 0.1.3 or newer**.
 
 ## 1. Find docpdf, or install it
 
@@ -16,7 +16,7 @@ uv and pipx put the command in `~/.local/bin`, which often isn't on the shell's 
 1. `docpdf --version`
 2. If that's not found: `~/.local/bin/docpdf --version` (on Windows, `%USERPROFILE%\.local\bin\docpdf.exe --version`), or `"$(uv tool dir --bin)/docpdf" --version` when uv is installed.
 
-Whichever works, use that exact command for everything below. If it reports a version older than 0.1.2, upgrade it with `uv tool upgrade docpdf` (or `pipx upgrade docpdf`).
+Whichever works, use that exact command for everything below. If it reports a version older than 0.1.3, upgrade it with `uv tool upgrade docpdf` (or `pipx upgrade docpdf`).
 
 Only if none of them works, install it. Prefer uv, then pipx, then pip:
 
@@ -53,11 +53,25 @@ For each entry in `results`:
 - `unexpected_fonts` not empty: the converter swapped fonts. `fonts_not_in_pdf` lists the fonts the document asked for that didn't make it in, most used first, so the first one or two are usually the ones missing from this computer. Offer to install them (or ask the user where they come from), then convert again.
 - `stand_ins` / `notes`: a font the document asks for is missing, and a free font with exactly the same letter widths stood in (Carlito for Calibri, Caladea for Cambria, Liberation for Arial, Times New Roman and Courier New). Lines and pages break as in Word; only the letter shapes differ slightly. Mention it in one line. It isn't a failure, unless the user needs the exact typeface (a brand font, say), in which case the original font has to be installed.
 - `pages` vs `expected_pages`: a difference means the layout reflowed, usually because of the font swap.
-- `fonts_checked` false (binary `.doc`): the font check couldn't run, so say so.
+- `missing_text` not empty: those passages aren't in the PDF. Usually a text box, header or footer was dropped. Name the first one or two.
+- `images_in_pdf` lower than `images_expected`: a picture (often a logo or a signature) is missing.
+- `fonts_checked` or `text_checked` false (binary `.doc`, `.rtf`): those checks couldn't run, so say so.
 
-## 4. Look at the pages before handing the PDF over
+## 4. Decide whether to look at the pages
 
-Render the pages to images (for example `pdftoppm -r 60 -png file.pdf page`) or open the PDF, and check what the reader will see: letterhead and logos, tables and boxes, columns, page breaks and signature lines. Mention anything that looks off, even when docpdf reported no warnings.
+`visual_check.suggested` is true when a check found a problem, when the document has pictures, text boxes, drawn shapes, floating objects, columns or charts (where a converter is most likely to put something in the wrong place), or when docpdf couldn't look inside the file. `visual_check.reasons` says which.
+
+Look at the pages when `visual_check.suggested` is true, or when the PDF is going to be printed, signed, or sent to a court, an authority or a client, whatever docpdf says. Skip the look when it's false and nothing says the PDF is headed somewhere that matters: plain text and tables, every check passed.
+
+To look, render the pages (`pdftoppm -r 60 -png file.pdf page`) and read the images. Check what a reader would notice: letterhead and logos, text boxes, tables, columns, page breaks, signature lines. For a long document (more than about 10 pages), look at the first page, the last page and the pages in `image_pages`, not every page.
+
+## 5. Tell the user what you looked at
+
+Always end with one short line about the pages, so the user knows what they're relying on:
+
+- Looked at every page: "I looked at both pages: the letterhead and the signature lines are in place."
+- Looked at some: name them and why, and offer the rest: "I looked at pages 1, 7 and 30 (first, last, and the ones with pictures). Want me to check the other 27?"
+- Didn't look: give the reason in a few words, say when it would still be worth it, and offer: "I didn't look at the pages: plain text and every check passed. Worth a look if it's going to print. Want me to?"
 
 ## Checking a Word document you made or edited
 

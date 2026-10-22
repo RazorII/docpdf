@@ -15,6 +15,7 @@ from typing import List, Optional
 
 from . import __version__
 from .checks import fonts_not_in_pdf, read_pdf, read_source, stand_ins, unexpected_fonts
+from .content import VISUAL_TRIGGERS, missing_text, read_content, read_pdf_content
 from .engines import Engine, EngineError, all_engines, get_engine
 
 SUPPORTED = (".docx", ".doc", ".rtf", ".odt")
@@ -39,6 +40,13 @@ class Result:
     stand_ins: List[dict] = field(default_factory=list)
     fonts_not_in_pdf: List[str] = field(default_factory=list)
     fonts_checked: bool = False
+    missing_text: List[str] = field(default_factory=list)
+    text_checked: bool = False
+    images_expected: Optional[int] = None
+    images_in_pdf: Optional[int] = None
+    image_pages: List[int] = field(default_factory=list)
+    layout: List[str] = field(default_factory=list)
+    visual_check: dict = field(default_factory=dict)
     warnings: List[str] = field(default_factory=list)
     notes: List[str] = field(default_factory=list)
     error: Optional[str] = None
@@ -174,11 +182,61 @@ def _check(result: Result, src: Path, pdf: Path) -> None:
             covered = {original for original, _ in pairs}
             missing = [f for f in result.fonts_not_in_pdf if f not in covered]
             likely = [f for f in missing if source.uses.get(f)][:4] or missing[:4]
+            hint = (
+                f" Most likely missing from this computer: {', '.join(likely)}. Install those fonts and convert again."
+                if likely
+                else " The document doesn't name the font it expected there, so it was probably a default font."
+            )
             result.warnings.append(
                 f"Fonts were swapped: the PDF uses {', '.join(result.unexpected_fonts)}, which the document "
-                f"doesn't ask for. Most likely missing from this computer: {', '.join(likely) or 'unknown'}. "
-                "Install those fonts and convert again."
+                f"doesn't ask for.{hint}"
             )
+
+    _check_content(result, src, pdf)
+
+
+def _check_content(result: Result, src: Path, pdf: Path) -> None:
+    content = read_content(src)
+    try:
+        in_pdf = read_pdf_content(pdf)
+    except Exception as exc:  # pypdf raises many types for odd files
+        result.notes.append(f"The text and image checks couldn't read the PDF ({exc}).")
+        content.text_checked = content.images_checked = False
+        in_pdf = None
+    result.layout = content.features
+
+    if in_pdf is not None:
+        result.image_pages = in_pdf.image_pages
+    if in_pdf is not None and content.text_checked:
+        result.text_checked = True
+        if content.paragraphs and not in_pdf.text:
+            result.warnings.append("The PDF has no readable text, so it can't be searched or copied from.")
+        else:
+            result.missing_text = missing_text(content.paragraphs, in_pdf.text)
+            if result.missing_text:
+                more = len(result.missing_text) - 2
+                shown = "; ".join(f'"{s}"' for s in result.missing_text[:2])
+                result.warnings.append(
+                    f"Some of the document's text isn't in the PDF: {shown}"
+                    + (f" and {more} more passage{'s' if more != 1 else ''}" if more > 0 else "")
+                    + ". A text box, header or footer may have been dropped."
+                )
+    if in_pdf is not None and content.images_checked:
+        result.images_expected = content.images
+        result.images_in_pdf = in_pdf.images
+        if in_pdf.images < content.images:
+            result.warnings.append(
+                f"The document has {content.images} picture{'s' if content.images != 1 else ''} "
+                f"but the PDF has {in_pdf.images}. A picture may be missing."
+            )
+
+    reasons = []
+    if result.warnings:
+        reasons.append("a check found a problem")
+    reasons += [f for f in content.features if f in VISUAL_TRIGGERS]
+    if not content.text_checked:
+        reasons.append(f"docpdf can't look inside {src.suffix.lower()} files")
+    result.visual_check = {"suggested": bool(reasons), "reasons": reasons}
 
 
 def _pick_engine(name: str) -> Optional[Engine]:
@@ -230,6 +288,8 @@ def _print_human(r: Result) -> None:
         print(f"      Note: {note}")
     if not r.fonts_checked:
         print("      Fonts not checked: docpdf can't read the font list of this file type.")
+    if r.visual_check.get("suggested"):
+        print(f"      Worth a look at the pages: {', '.join(r.visual_check['reasons'])}.")
 
 
 if __name__ == "__main__":
