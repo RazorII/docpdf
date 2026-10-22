@@ -1,15 +1,24 @@
 ---
 name: docpdf
-description: Convert Word documents (.docx, .doc, .rtf, .odt) to PDF from the command line with docpdf, which uses the most faithful converter installed and then checks the PDF's page count and fonts against the document. Use whenever the user wants a Word file as a PDF (to print, sign, send, attach or upload), asks to convert doc/docx/rtf/odt to PDF, or a PDF made from a Word file looks wrong.
+description: Convert Word documents (.docx, .doc, .rtf, .odt) to PDF from the command line with docpdf, which uses the most faithful converter installed and then checks the PDF's page count and fonts against the document. Use whenever the user wants a Word file as a PDF (to print, sign, send, attach or upload), asks to convert doc/docx/rtf/odt to PDF, a PDF made from a Word file looks wrong, or you need to render a Word document to check how it looks (especially on macOS).
 ---
 
 # docpdf: Word documents to faithful PDFs
 
 docpdf converts a document, then checks the result: the page count Word recorded against the PDF's, and the fonts the document asks for against the fonts embedded in the PDF. A conversion can "succeed" and still be wrong, so the checks and a look at the pages are part of the job, not extras.
 
-## 1. Make sure docpdf is installed
+This skill needs **docpdf 0.1.1 or newer**.
 
-Run `docpdf --version`. If the command isn't found, install it. Prefer uv, then pipx, then pip:
+## 1. Find docpdf, or install it
+
+uv and pipx put the command in `~/.local/bin`, which often isn't on the shell's PATH. So look before installing:
+
+1. `docpdf --version`
+2. If that's not found: `~/.local/bin/docpdf --version` (on Windows, `%USERPROFILE%\.local\bin\docpdf.exe --version`), or `"$(uv tool dir --bin)/docpdf" --version` when uv is installed.
+
+Whichever works, use that exact command for everything below. If it reports a version older than 0.1.1, upgrade it with `uv tool upgrade docpdf` (or `pipx upgrade docpdf`).
+
+Only if none of them works, install it. Prefer uv, then pipx, then pip:
 
 ```
 uv tool install git+https://github.com/RazorII/docpdf
@@ -48,6 +57,10 @@ For each entry in `results`:
 ## 4. Look at the pages before handing the PDF over
 
 Render the pages to images (for example `pdftoppm -r 60 -png file.pdf page`) or open the PDF, and check what the reader will see: letterhead and logos, tables and boxes, columns, page breaks and signature lines. Mention anything that looks off, even when docpdf reported no warnings.
+
+## Checking a Word document you made or edited
+
+When another skill has just written or changed a `.docx` and you want to see how it looks, render it with docpdf (`docpdf -o <scratch folder> file.docx`, then `pdftoppm`). On macOS this matters: a LibreOffice helper that forces `SAL_USE_VCLPLUGIN=svp` (Anthropic's `docx` skill does, in `scripts/office/soffice.py`) can't see the Mac's fonts, so its renders show substitute fonts and shifted line and page breaks. Judging layout from such a render leads to "fixing" problems that aren't there, or missing ones that are.
 
 ## Don't
 

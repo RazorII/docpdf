@@ -49,7 +49,9 @@ LibreOffice:
 - Windows: `winget install TheDocumentFoundation.LibreOffice`
 - Debian / Ubuntu: `sudo apt install libreoffice-writer`
 
-Run `docpdf --engines` to see what it found. If LibreOffice lives somewhere unusual, point `DOCPDF_SOFFICE` at its `soffice` binary.
+Run `docpdf --engines` to see what it found. If the shell says `docpdf` isn't found, uv put it in `~/.local/bin`, which isn't on your PATH yet: `uv tool update-shell` fixes that. If LibreOffice lives somewhere unusual, point `DOCPDF_SOFFICE` at its `soffice` binary.
+
+To update later: `uv tool upgrade docpdf` (or `pipx upgrade docpdf`).
 
 ## Use
 
@@ -93,7 +95,11 @@ claude plugin marketplace add RazorII/claude-plugins
 claude plugin install docpdf@razorii
 ```
 
-The plugin installs docpdf for you on first use if it isn't there yet.
+The plugin installs docpdf for you on first use if it isn't there yet, and upgrades it when it's older than the plugin.
+
+Claude Code doesn't update plugins from this marketplace on its own until you let it: in `/plugin`, open **Marketplaces**, pick **razorii** and choose **Enable auto-update**. Without that, update by hand with `claude plugin update docpdf@razorii`.
+
+On macOS the skill also covers rendering a Word document that another skill has just written, so Claude checks the layout with the Mac's real fonts.
 
 ## Development
 
