@@ -121,6 +121,10 @@ pytest
 
 The tests build their own small Word documents, so the repo carries no binaries. Tests that convert skip themselves when LibreOffice isn't installed. CI runs the suite on macOS, Windows and Linux on every push (first green run: LibreOffice 26.8.1 on macOS, 26.2.6 on Windows, 24.2.7 on Ubuntu).
 
+## Questions and bugs
+
+Ask questions in [Discussions](https://github.com/RazorII/docpdf/discussions/categories/q-a). Report bugs in [Issues](https://github.com/RazorII/docpdf/issues), and include the `docpdf --json` output if you can.
+
 ## License
 
 MIT
