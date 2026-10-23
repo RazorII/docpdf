@@ -39,7 +39,7 @@ The cause is a macOS trap. With `--headless`, LibreOffice switches to a renderer
 
 ## Install
 
-You need Python 3.9 or newer and LibreOffice.
+You need Python 3.9 or newer and **LibreOffice, which is required**: docpdf converts with it and can't convert anything without it.
 
 ```
 uv tool install git+https://github.com/RazorII/docpdf
@@ -94,16 +94,19 @@ docpdf uses the most faithful converter installed, best first.
 
 Word is the reference renderer for Word files, so it will go first once its automation has been tested against a licensed copy. Without a Microsoft 365 subscription, Word for Mac runs read-only and refuses to save, PDF included (tested with Word 16.114 on macOS 27). If you have a licensed Word on a Mac or on Windows and would like to help test, please open an issue.
 
-## Use it from Claude Code
+## Use it with Claude
 
-docpdf comes with a Claude Code plugin. Its skill tells Claude when to use docpdf, how to read the warnings and to look at every page before handing a PDF over.
+docpdf comes with a Claude plugin. Its skill tells Claude when to use docpdf, how to read the warnings, when the pages are worth looking at, and to tell you what it looked at. It needs somewhere Claude can run commands:
+
+- **Claude Code** on macOS, Windows or Linux.
+- **claude.ai**, in Claude's own sandbox (tested 2026-10-23: Ubuntu 24.04 with LibreOffice 24.2 already installed; docpdf installs there with uv).
 
 ```
 claude plugin marketplace add RazorII/claude-plugins
 claude plugin install docpdf@razorii
 ```
 
-The plugin installs docpdf for you on first use if it isn't there yet, and upgrades it when it's older than the plugin.
+The plugin installs docpdf for you on first use if it isn't there yet, pinned to the release the plugin belongs to, and replaces an older copy. What the plugin runs and downloads is listed in [claude-plugin/README.md](claude-plugin/README.md).
 
 Claude Code doesn't update plugins from this marketplace on its own until you let it: in `/plugin`, open **Marketplaces**, pick **razorii** and choose **Enable auto-update**. Without that, update by hand with `claude plugin update docpdf@razorii`.
 

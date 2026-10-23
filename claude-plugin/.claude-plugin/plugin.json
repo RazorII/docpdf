@@ -1,6 +1,6 @@
 {
   "name": "docpdf",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Convert Word documents (.docx, .doc, .rtf, .odt) to PDF headlessly, then check the PDF's page count and fonts against the document.",
   "author": {
     "name": "RazorII",

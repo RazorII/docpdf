@@ -47,3 +47,20 @@ def test_plain_document_needs_no_look(tmp_path, capsys, libreoffice):
     assert code == cli.EXIT_OK
     assert r["visual_check"] == {"suggested": False, "reasons": []}
     assert r["images_expected"] == 0 and r["missing_text"] == []
+
+
+def test_problems_are_named(tmp_path, capsys, libreoffice):
+    import json
+
+    code = cli.main(["--json", str(make_docx(tmp_path / "p.docx", ["one", "two"], stored_pages=5))])
+    r = json.loads(capsys.readouterr().out)["results"][0]
+    assert r["problems"] == ["the page count differs"]
+    assert r["visual_check"]["reasons"][0] == "the page count differs"
+
+
+def test_failed_result_keeps_the_visual_check_shape(tmp_path, capsys, libreoffice):
+    import json
+
+    cli.main(["--json", str(tmp_path / "missing.docx")])
+    r = json.loads(capsys.readouterr().out)["results"][0]
+    assert r["visual_check"] == {"suggested": False, "reasons": []}

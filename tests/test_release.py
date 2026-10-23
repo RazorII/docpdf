@@ -28,3 +28,12 @@ def test_skill_names_the_current_version():
         re.findall(r"older than (\d+\.\d+\.\d+)", skill)
     )
     assert named == {__version__}, named
+
+
+def test_skill_installs_its_own_release():
+    # The skill pins installs to its release tag; an unpinned or stale pin
+    # would install a command that doesn't match the skill.
+    skill = (PLUGIN / "skills" / "docpdf" / "SKILL.md").read_text(encoding="utf-8")
+    pins = set(re.findall(r"github\.com/RazorII/docpdf@v(\d+\.\d+\.\d+)", skill))
+    assert pins == {__version__}, pins
+    assert not re.search(r"github\.com/RazorII/docpdf(?!@v)", skill), "an install line is not pinned"

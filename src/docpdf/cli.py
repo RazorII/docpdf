@@ -46,7 +46,8 @@ class Result:
     images_in_pdf: Optional[int] = None
     image_pages: List[int] = field(default_factory=list)
     layout: List[str] = field(default_factory=list)
-    visual_check: dict = field(default_factory=dict)
+    visual_check: dict = field(default_factory=lambda: {"suggested": False, "reasons": []})
+    problems: List[str] = field(default_factory=list)  # one short name per warning, e.g. "fonts were swapped"
     warnings: List[str] = field(default_factory=list)
     notes: List[str] = field(default_factory=list)
     error: Optional[str] = None
@@ -132,6 +133,7 @@ def convert_one(src: Path, engine: Engine, outdir: Optional[Path], overwrite: bo
             produced = engine.convert(staged, tmp / "out", timeout)
             if engine.note:
                 result.warnings.append(engine.note)
+                result.problems.append("the plain renderer was used")
             _check(result, src, produced)
             partial = dest.with_name(dest.name + ".docpdf-partial")
             shutil.copyfile(produced, partial)
@@ -157,6 +159,8 @@ def _check(result: Result, src: Path, pdf: Path) -> None:
     result.pages = info.pages
 
     source = read_source(src)
+    if source.pages_note:
+        result.notes.append(source.pages_note)
     if source.pages:
         result.expected_pages = source.pages
         result.counted_by = source.application
@@ -166,6 +170,7 @@ def _check(result: Result, src: Path, pdf: Path) -> None:
                 f"{who} counted {source.pages} page{'s' if source.pages != 1 else ''} when it last saved "
                 f"this file, but the PDF has {info.pages}. The layout has probably shifted."
             )
+            result.problems.append("the page count differs")
 
     result.fonts_checked = source.fonts_checked
     if source.fonts_checked:
@@ -191,6 +196,7 @@ def _check(result: Result, src: Path, pdf: Path) -> None:
                 f"Fonts were swapped: the PDF uses {', '.join(result.unexpected_fonts)}, which the document "
                 f"doesn't ask for.{hint}"
             )
+            result.problems.append("fonts were swapped")
 
     _check_content(result, src, pdf)
 
@@ -211,6 +217,7 @@ def _check_content(result: Result, src: Path, pdf: Path) -> None:
         result.text_checked = True
         if content.paragraphs and not in_pdf.text:
             result.warnings.append("The PDF has no readable text, so it can't be searched or copied from.")
+            result.problems.append("the PDF has no readable text")
         else:
             result.missing_text = missing_text(content.paragraphs, in_pdf.text)
             if result.missing_text:
@@ -221,6 +228,7 @@ def _check_content(result: Result, src: Path, pdf: Path) -> None:
                     + (f" and {more} more passage{'s' if more != 1 else ''}" if more > 0 else "")
                     + ". A text box, header or footer may have been dropped."
                 )
+                result.problems.append("text is missing")
     if in_pdf is not None and content.images_checked:
         result.images_expected = content.images
         result.images_in_pdf = in_pdf.images
@@ -229,10 +237,9 @@ def _check_content(result: Result, src: Path, pdf: Path) -> None:
                 f"The document has {content.images} picture{'s' if content.images != 1 else ''} "
                 f"but the PDF has {in_pdf.images}. A picture may be missing."
             )
+            result.problems.append("a picture is missing")
 
-    reasons = []
-    if result.warnings:
-        reasons.append("a check found a problem")
+    reasons = list(result.problems)
     reasons += [f for f in content.features if f in VISUAL_TRIGGERS]
     if not content.text_checked:
         reasons.append(f"docpdf can't look inside {src.suffix.lower()} files")
