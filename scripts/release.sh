@@ -10,6 +10,11 @@ cd "$(git rev-parse --show-toplevel)"
 grep -q "__version__ = \"$v\"" src/docpdf/__init__.py || { echo "src/docpdf/__init__.py is not at $v" >&2; exit 1; }
 "${PYTHON:-python3}" -m pytest -q -p no:cacheprovider tests/test_release.py
 [ -z "$(git status --porcelain)" ] || { echo "commit everything first" >&2; exit 1; }
+# docpdf is published as RazorII. A fresh clone takes the global git name, so
+# check every commit and the name the tag will carry before anything is pushed.
+publisher="RazorII"
+names="$( { git log --format='%an%n%cn'; git config user.name; } | sort -u)"
+[ "$names" = "$publisher" ] || { echo "commits and the tag must be by $publisher (git config user.name $publisher); found: $(echo $names)" >&2; exit 1; }
 git tag -a "v$v" -m "docpdf $v"
 git push origin HEAD "refs/tags/v$v"
 git ls-remote --exit-code --tags origin "refs/tags/v$v" >/dev/null || { echo "v$v did not reach GitHub" >&2; exit 1; }
