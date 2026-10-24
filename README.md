@@ -125,6 +125,10 @@ The tests build their own small Word documents, so the repo carries no binaries.
 
 Ask questions in [Discussions](https://github.com/RazorII/docpdf/discussions/categories/q-a). Report bugs in [Issues](https://github.com/RazorII/docpdf/issues), and include the `docpdf --json` output if you can.
 
+## Privacy
+
+docpdf collects nothing and sends nothing anywhere; documents are converted on your own machine. See [PRIVACY.md](PRIVACY.md).
+
 ## License
 
 MIT

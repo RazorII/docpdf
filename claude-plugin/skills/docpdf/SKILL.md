@@ -7,7 +7,7 @@ description: Convert Word documents (.docx, .doc, .rtf, .odt) to PDF from the co
 
 docpdf converts a document, then checks the result: the page count Word recorded against the PDF's, the fonts the document asks for against the fonts in the PDF, that every paragraph of text made it in, and that no picture went missing. A conversion can "succeed" and still be wrong, so the checks, and a look at the pages when it's worth it, are part of the job.
 
-This skill needs **docpdf 0.1.5 or newer**, and **LibreOffice, which is required**: docpdf can't convert anything without it. It works wherever you can run shell commands: Claude Code on macOS, Windows or Linux, and claude.ai's own sandbox (tested 2026-10-23: Ubuntu 24.04, LibreOffice 24.2 already installed, uv available).
+This skill needs **docpdf 0.1.6 or newer**, and **LibreOffice, which is required**: docpdf can't convert anything without it. It works wherever you can run shell commands: Claude Code on macOS, Windows or Linux, and claude.ai's own sandbox (tested 2026-10-23: Ubuntu 24.04, LibreOffice 24.2 already installed, uv available).
 
 ## 1. Find docpdf, or install it
 
@@ -16,14 +16,14 @@ uv and pipx put the command in `~/.local/bin`, which often isn't on the shell's 
 1. `docpdf --version`
 2. If that's not found: `~/.local/bin/docpdf --version` (on Windows, `%USERPROFILE%\.local\bin\docpdf.exe --version`), or `"$(uv tool dir --bin)/docpdf" --version` when uv is installed.
 
-Whichever works, use that exact command for everything below. If it reports a version older than 0.1.5, reinstall this release over it: `uv tool install --force git+https://github.com/RazorII/docpdf@v0.1.5` (or the same with `pipx install --force`). A plain `uv tool upgrade` keeps the old pin, so it won't move it.
+Whichever works, use that exact command for everything below. If it reports a version older than 0.1.6, reinstall this release over it: `uv tool install --force git+https://github.com/RazorII/docpdf@v0.1.6` (or the same with `pipx install --force`). A plain `uv tool upgrade` keeps the old pin, so it won't move it.
 
 Only if none of them works, install this release. Prefer uv, then pipx, then pip:
 
 ```
-uv tool install git+https://github.com/RazorII/docpdf@v0.1.5
-pipx install git+https://github.com/RazorII/docpdf@v0.1.5
-python3 -m pip install --user git+https://github.com/RazorII/docpdf@v0.1.5
+uv tool install git+https://github.com/RazorII/docpdf@v0.1.6
+pipx install git+https://github.com/RazorII/docpdf@v0.1.6
+python3 -m pip install --user git+https://github.com/RazorII/docpdf@v0.1.6
 ```
 
 In a sandbox whose Python refuses pip with "externally-managed-environment" (claude.ai's does), use uv.

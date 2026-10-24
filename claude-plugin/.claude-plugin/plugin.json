@@ -1,7 +1,8 @@
 {
   "name": "docpdf",
-  "version": "0.1.5",
-  "description": "Convert Word documents (.docx, .doc, .rtf, .odt) to PDF headlessly, then check the PDF's page count and fonts against the document.",
+  "displayName": "docpdf",
+  "version": "0.1.6",
+  "description": "Convert Word documents (.docx, .doc, .rtf, .odt) to PDF headlessly, then check the PDF's page count, fonts, text and pictures against the document.",
   "author": {
     "name": "RazorII",
     "url": "https://github.com/RazorII"
@@ -9,5 +10,6 @@
   "homepage": "https://github.com/RazorII/docpdf",
   "repository": "https://github.com/RazorII/docpdf",
   "license": "MIT",
-  "keywords": ["docx", "doc", "pdf", "word", "libreoffice", "convert"]
+  "keywords": ["docx", "doc", "pdf", "word", "libreoffice", "convert"],
+  "privacyPolicyUrl": "https://github.com/RazorII/docpdf/blob/main/PRIVACY.md"
 }

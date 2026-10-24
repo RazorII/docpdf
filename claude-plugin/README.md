@@ -13,7 +13,7 @@ Turns Word documents (.docx, .doc, .rtf, .odt) into PDFs and checks that each PD
 - The plugin itself is one skill: instructions that tell Claude how to use the `docpdf` command. It has no hooks, no MCP servers and no background processes.
 - If `docpdf` isn't installed, Claude installs the release this plugin belongs to from [github.com/RazorII/docpdf](https://github.com/RazorII/docpdf), pinned to its version tag, with uv, pipx or pip. Its only dependency is [pypdf](https://pypi.org/project/pypdf/), from PyPI.
 - If LibreOffice is missing, Claude offers to install it with your system's package manager (Homebrew, winget or apt), and only does so with your OK.
-- Conversion runs entirely on your machine. docpdf sends nothing anywhere and has no telemetry.
+- Conversion runs entirely on your machine. docpdf sends nothing anywhere and has no telemetry ([privacy policy](https://github.com/RazorII/docpdf/blob/main/PRIVACY.md)).
 - To check how a PDF looks, Claude may render its pages to images on your machine and look at them.
 
 ## Install
