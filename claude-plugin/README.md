@@ -16,6 +16,13 @@ Turns Word documents (.docx, .doc, .rtf, .odt) into PDFs and checks that each PD
 - Conversion runs entirely on your machine. docpdf sends nothing anywhere and has no telemetry ([privacy policy](https://github.com/RazorII/docpdf/blob/main/PRIVACY.md)).
 - To check how a PDF looks, Claude may render its pages to images on your machine and look at them.
 
+## Examples
+
+- "Turn `contract.docx` into a PDF I can send." Claude converts it and tells you whether the PDF matches: same page count, same fonts, all the text and pictures.
+- "Convert every Word file in this folder to PDF and put the PDFs in `out/`." Claude converts them in one run and lists any file whose PDF doesn't match.
+- "The PDF of my CV has the wrong font. Make it again and tell me what went wrong." Claude converts it, names the font the document asks for that this computer doesn't have, and offers to install it and convert again.
+- "Check how the report you just wrote looks." After another skill writes a `.docx`, Claude renders it and looks at the pages.
+
 ## Install
 
 ```

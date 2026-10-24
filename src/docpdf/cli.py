@@ -58,7 +58,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     parser = argparse.ArgumentParser(
         prog="docpdf",
         description="Convert Word documents (.docx, .doc, .rtf, .odt) to PDF with the most faithful "
-        "converter installed, then check the PDF's page count and fonts against the document.",
+        "converter installed, then check the PDF's page count, fonts, text and pictures against the document.",
     )
     parser.add_argument("files", nargs="*", type=Path, help="documents to convert")
     parser.add_argument("-o", "--outdir", type=Path, help="write PDFs here (default: next to each document)")
