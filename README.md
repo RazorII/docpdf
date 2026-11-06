@@ -123,7 +123,7 @@ The tests build their own small Word documents, so the repo carries no binaries.
 
 ## Questions and bugs
 
-Ask questions in [Discussions](https://github.com/RazorII/docpdf/discussions/categories/q-a). Report bugs in [Issues](https://github.com/RazorII/docpdf/issues), and include the `docpdf --json` output if you can.
+Ask questions in [Discussions](https://github.com/RazorII/docpdf/discussions/categories/q-a). Report bugs in [Issues](https://github.com/RazorII/docpdf/issues), and include the `docpdf --json` output if you can. To fix something yourself, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Privacy
 
