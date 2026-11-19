@@ -1,4 +1,4 @@
-# docpdf
+# <img src="https://raw.githubusercontent.com/RazorII/docpdf/main/claude-plugin/.claude-plugin/icon.png" alt="docpdf icon" width="40" height="40" align="top"> docpdf
 
 [![test](https://github.com/RazorII/docpdf/actions/workflows/test.yml/badge.svg)](https://github.com/RazorII/docpdf/actions/workflows/test.yml)
 
